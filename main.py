@@ -45,10 +45,13 @@ for element in range(len(elements)):
     aX12 = []
 
     for i in range(3):
-        pinn_el = bets_div.find_element(by=By.XPATH, value=f"//*[text()='Pinnacle']//following::p[{i + 2}]")
-        pinn_ela = bets_div.find_element(by=By.XPATH, value=f"//*[text()='Pinnacle']//following::a[{i + 3}]")
-
+        pinn_el = bets_div.find_element(by=By.XPATH, value=f"//*[text()='Pinnacle']//following::p[{i + 1}]")
         pX12.append(pinn_el.text)
+
+    bets_div = driver.find_element(by=By.CSS_SELECTOR, value="div[class='flex flex-col']")
+
+    for i in range(3):
+        pinn_ela = bets_div.find_element(by=By.XPATH, value=f"//*[text()='Pinnacle']//following::a[{i + 3}]")
         aX12.append(pinn_ela.text)
 
     if pX12[0] == "":
