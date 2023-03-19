@@ -97,12 +97,14 @@ for element in range(len(elements)):
             pinn_final_X = pX12[1]
             pinn_final_2 = pX12[2]
 
-        l1.append(pinn_final_1)
-        lX.append(pinn_final_X)
-        l2.append(pinn_final_2)
-
     except NoSuchElementException:
-        pass
+        pinn_final_1 = "-"
+        pinn_final_X = "-"
+        pinn_final_2 = "-"
+
+    l1.append(pinn_final_1)
+    lX.append(pinn_final_X)
+    l2.append(pinn_final_2)
 
     driver.execute_script("window.history.go(-1)")
     time.sleep(3)
