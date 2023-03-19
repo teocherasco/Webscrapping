@@ -22,6 +22,10 @@ null_col = []
 loc_name = None
 aw_name = None
 time_m = None
+ou_fin1 = None
+ou_fin2 = None
+over = []
+under = []
 
 driver = webdriver.Chrome("C:\\Users\\PC\\Downloads\\chromedriver_win32\\chromedriver.exe")
 
@@ -42,10 +46,12 @@ for element in range(len(elements)):
         div_match = driver.find_element("xpath", '//*[@id="app"]/div/div[1]/div/main/div[2]/div[5]')
 
         loc_name = (div_match.find_elements(by=By.CSS_SELECTOR,
-                                            value="div[class='relative block truncate whitespace-nowrap group-hover:underline next-m:!ml-auto text-[#000000]']")[element])
+                                            value="div[class='relative block truncate whitespace-nowrap group-hover:underline next-m:!ml-auto text-[#000000]']")[
+            element])
 
         aw_name = (div_match.find_elements(by=By.CSS_SELECTOR,
-                                           value="div[class='relative block truncate whitespace-nowrap group-hover:underline text-[#000000]']")[element])
+                                           value="div[class='relative block truncate whitespace-nowrap group-hover:underline text-[#000000]']")[
+            element])
 
         time_m = (div_match.find_elements(by=By.CSS_SELECTOR, value="p[class='whitespace-nowrap']")[element])
 
@@ -62,7 +68,8 @@ for element in range(len(elements)):
         WebDriverWait(driver, 20).until(
             EC.visibility_of_element_located((By.CSS_SELECTOR, "div[class='flex flex-col px-3 text-sm max-mm:px-0']")))
 
-        div_matches = driver.find_element(by=By.CSS_SELECTOR, value="div[class='flex flex-col px-3 text-sm max-mm:px-0']")
+        div_matches = driver.find_element(by=By.CSS_SELECTOR,
+                                          value="div[class='flex flex-col px-3 text-sm max-mm:px-0']")
         el = div_matches.find_elements(by=By.CSS_SELECTOR,
                                        value="div[class='flex items-center gap-1 my-1 align-center w-[100%]']")[element]
         driver.execute_script("arguments[0].scrollIntoView();", el)
@@ -97,16 +104,52 @@ for element in range(len(elements)):
             pinn_final_X = pX12[1]
             pinn_final_2 = pX12[2]
 
+        # ---------------------------------------------------------------------------
+        ou_button = driver.find_element(by=By.XPATH, value="//*[text()='Home/Away']//following::li[12]")
+
+        ou_button.click()
+        WebDriverWait(driver, 20).until(
+            EC.visibility_of_element_located((By.XPATH, "//*[text()='O/U +2.25 ']//following::div[5]")))
+
+        ou_wanted = driver.find_element(by=By.XPATH, value="//*[text()='O/U +2.25 ']//following::div[5]")
+        ou_wanted.click()
+
+        WebDriverWait(driver, 20).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "div[class='flex flex-col']:nth-child(2)")))
+        ou_menu = driver.find_element(by=By.CSS_SELECTOR, value="div[class='flex flex-col']:nth-child(2)")
+
+        ou_odd = []
+        oua_odd = []
+
+        for i in range(2):
+            ou_pinn = ou_menu.find_element(by=By.XPATH, value=f"//*[text()='Pinnacle']//following::p[{i + 1}]")
+            ou_pinna = ou_menu.find_element(by=By.XPATH, value=f"//*[text()='Pinnacle']//following::a[{i + 3}]")
+            ou_odd.append(ou_pinn.text)
+            oua_odd.append(ou_pinna.text)
+
+        if ou_odd[0] == "":
+            ou_fin1 = oua_odd[0]
+            ou_fin2 = oua_odd[1]
+        else:
+            ou_fin1 = ou_odd[0]
+            ou_fin2 = ou_odd[1]
+
+        driver.execute_script("window.history.go(-3)")
+
     except NoSuchElementException:
         pinn_final_1 = "-"
         pinn_final_X = "-"
         pinn_final_2 = "-"
+        ou_fin1 = "-"
+        ou_fin2 = "-"
+        driver.execute_script("window.history.go(-1)")
 
     l1.append(pinn_final_1)
     lX.append(pinn_final_X)
     l2.append(pinn_final_2)
+    over.append(ou_fin1)
+    under.append(ou_fin2)
 
-    driver.execute_script("window.history.go(-1)")
     time.sleep(3)
 
 driver.quit()
@@ -118,7 +161,7 @@ for i, lst in enumerate(arrays):
     if len(lst) < max_len:
         arrays[i] += [np.nan] * (max_len - len(lst))
 
-data = {"Time": times, "Local Team": loc_names, "Away team": aw_names, "1": l1, "X": lX, "2": l2}
+data = {"Time": times, "Local Team": loc_names, "Away team": aw_names, "1": l1, "X": lX, "2": l2, "Over": over, "Under": under}
 df = pd.DataFrame(data)
 df.replace("Unibet", "-", inplace=True)
 df.to_excel("Match_odds.xlsx", index=False)
