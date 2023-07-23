@@ -1,2 +1,2 @@
-# Wbscrapping
-Wbscrapping projects
+# Webscrapping
+Webscrapping projects
